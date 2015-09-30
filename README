@@ -2,8 +2,8 @@ Description: Dinamic Load Balancer API on Top of Nginx, LUA and Redis (openresty
 
 USAGE:
 Build docker image
-  docker build -t dml/lb .
-  docker run  --name lb --rm -i -p 80:8080 -t dml/lb
+  docker build -t dmatosl/lb .
+  docker run  --name lb --rm -i -p 80:8080 -t dmatosl/lb
 
 
 ADD New upstream
