@@ -1,3 +1,4 @@
+-- GET /
 -- load redis settings
 local redis_host = ngx.var.redis_host
 local redis_port = ngx.var.redis_port

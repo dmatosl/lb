@@ -1,3 +1,5 @@
+-- GET /v1/rem?ip=10.0.0.1
+
 -- load redis settings
 local redis_host = ngx.var.redis_host
 local redis_port = ngx.var.redis_port
