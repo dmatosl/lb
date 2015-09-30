@@ -1,4 +1,4 @@
-Description: Dinamic Load Balancer API on Top of Nginx, LUA and Redis (openresty)
+Description: Dinamic Nginx Upstream configuration Load Balancer API on Top of Openresty (Nginx, LUA and Redis).
 
 USAGE:
 Build docker image
