@@ -9,5 +9,11 @@ Build docker image
 ADD New upstream
     curl -h 'Host: foo.bar' http://$(docker-machine ip YOUR_BOX)/v1/api/add?ip=10.0.0.1
 
+REMOVE upstream:
+	curl -h 'Host: foo.bar' http://$(docker-machine ip YOUR_BOX)/v1/api/rem?ip=10.0.0.1
+
+LIST upstreams for a given Host:
+	curl -h 'Host: foo.bar' http://$(docker-machine ip YOUR_BOX)/v1/api/list
+
 Expected output:
 { "operation_status" : "success" }
