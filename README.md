@@ -16,10 +16,10 @@ Nginx simple Load Balancer with dinamic Nginx Upstream configuration API on top 
 
 ## REMOVE upstream
 ```
-	curl -h 'Host: foo.bar' http://192.168.99.100/v1/rem?ip=10.0.0.1
+	curl -H 'Host: foo.bar' http://192.168.99.100/v1/rem?ip=10.0.0.1
 ```
 
 ## LIST upstreams for a given Host:
 ```
-	curl -h 'Host: foo.bar' http://192.168.99.100/v1/list
+	curl -H 'Host: foo.bar' http://192.168.99.100/v1/list
 ```
