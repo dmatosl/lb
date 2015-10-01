@@ -1,5 +1,8 @@
 -- GET /v1/list
 
+-- load shared dict
+local dict = ngx.shared.upstream
+
 -- load redis settings
 local redis_host = ngx.var.redis_host
 local redis_port = ngx.var.redis_port
@@ -28,10 +31,13 @@ if not ok then
 end
 
 -- do work
+
 local members, err = red:smembers("s:" .. host)
 for key,value in pairs(members) do
-	ngx.say(key .. "=" .. value)
+	ngx.say("redis: " .. key .. "=" .. value)
+	ngx.say("shared_dict: " .. key .. "=" .. dict:get("s:" .. host .. key ))
 end
+ngx.say("count: " .. dict:get("s:" .. host .. ":count" ))
 
 -- put connection back to pool
 local ok, err = red:set_keepalive(redis_idle,redis_pool_size)

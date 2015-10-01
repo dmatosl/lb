@@ -1,5 +1,8 @@
 -- GET /v1/add?ip=10.x.x.x
 
+-- load shared dict
+local dict = ngx.shared.upstream
+
 -- load redis settings
 local redis_host = ngx.var.redis_host
 local redis_port = ngx.var.redis_port
@@ -39,12 +42,21 @@ end
 local ok, err = red:sadd("s:" .. host , ip)
 if not ok then
     ngx.log(ngx.ERR, "unable to set upstream: ", err)
+    ngx.exit(500)
+end
+
+-- update members cardinality in shared dict
+local count, err = red:scard("s:" .. host)
+if count > 0 then
+	local ok, err, forcible = dict:set("s:" .. host .. ":count", count)
+	local ok, err, forcible = dict:set("s:" .. host .. tostring(count), ip)
 end
 
 -- put connection back to pool
 local ok, err = red:set_keepalive(redis_idle,redis_pool_size)
 if not ok then
 	ngx.log(ngx.ERR,"failed to set_keepalive: ", err)
+	ngx.exit(500)
 end
 
 ngx.say('{ "operation_status" : "sucess" }')

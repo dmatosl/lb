@@ -1,4 +1,8 @@
 -- GET /
+
+-- load shared dict 
+local dict = ngx.shared.upstream 
+
 -- load redis settings
 local redis_host = ngx.var.redis_host
 local redis_port = ngx.var.redis_port
@@ -27,11 +31,28 @@ if not ok then
 end
 
 -- do work
--- TODO: change to shared dict rule
-local up, err = red:srandmember("s:" .. host)
-if up == nil then
-    ngx.log(ngx.INFO, "no upstreams found for " .. host)
-    return 
+local count_upstream, err = dict:get("s:" .. host .. ":count")
+
+if count_upstream == nil then
+	ngx.log(ngx.ERR, "count key not found on shared dict upstream: " .. host)
+	ngx.exit(500)
+end
+
+local next_upstream, err = dict:incr("s:" .. host .. ":next_upstream", 1)
+
+if not next_upstream and err == "not found" then
+	dict:add("s:" .. host .. ":next_upstream", 0)
+	next_upstream = dict:incr("s:" .. host .. ":next_upstream", 1)
+end
+
+if next_upstream > count_upstream then
+	dict:set("s:" .. host .. ":next_upstream", 1)
+	next_upstream = 1
+end
+
+local up, err = dict:get("s:" .. host .. next_upstream)
+if err == "not found" then
+	ngx.log(ngx.ERR, "upstream not found for " .. host)
 end
 
 -- put connection back to pool
