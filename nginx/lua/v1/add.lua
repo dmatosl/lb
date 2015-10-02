@@ -45,12 +45,12 @@ if not ok then
     ngx.exit(500)
 end
 
--- update members cardinality in shared dict
+-- update members count in shared dict
 local count, err = red:scard("s:" .. host)
 if count > 0 then
 	local ok, err = dict:set("s:" .. host .. ":count", count)
-	local ok, err = dict:add("s:" .. host .. ":" .. count, ip)
-    local ok, err = dict:add("s:" .. host .. ":" .. ip, count)
+	local ok, err = dict:set("s:" .. host .. ":" .. count, ip)
+    local ok, err = dict:set("s:" .. host .. ":" .. ip, count)
 end
 
 -- put connection back to pool

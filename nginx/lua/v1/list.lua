@@ -34,10 +34,13 @@ end
 
 local members, err = red:smembers("s:" .. host)
 for key,value in pairs(members) do
-	ngx.say("redis: " .. key .. "=" .. value)
-	ngx.say("shared_dict: " .. key .. "=" .. dict:get("s:" .. host .. ":" .. key ))
+	--ngx.say("redis: " .. key .. "=" .. value )
+	ngx.say("shared_dict: " .. dict:get("s:" .. host .. ":" .. key))
+		--.. ", shared_dict_ip: " .. dict:get("s:" .. host .. ":" .. key ) .. ", shared_dict_id: " .. dict:get("s:" .. host .. ":" .. value ))
+	--ngx.say("shared_dict: " .. key .. "=" .. dict:get("s:" .. host .. ":" .. key ))
 end
-ngx.say("count: " .. dict:get("s:" .. host .. ":count" ))
+ngx.say("count: " .. red:scard("s:" .. host))
+--ngx.say("count: " .. dict:get("s:" .. host .. ":count" ))
 
 -- put connection back to pool
 local ok, err = red:set_keepalive(redis_idle,redis_pool_size)

@@ -49,7 +49,7 @@ function _M.updateNextUpstream(host, dict ,red)
 		index = 1
 	end
 
-	if dict:get("s:" .. host .. ":index" ) > count_upstream then
+	if index > count_upstream then
 		ngx.log(ngx.INFO,"reseting index: " .. host .. ", index: " .. index .. ", count:" .. count_upstream)
 		index = 1
 		dict:set("s:" .. host .. ":index", 1)
@@ -72,6 +72,19 @@ function _M.updateNextUpstream(host, dict ,red)
 
 	return
 
+end
+
+function _M.updateUpstreamTable(host, dict, red)
+	local count = red:scard("s:" .. host)
+	local members = red:smembers("s:" .. host)
+	if count > 0 then
+		dict:set("s:" .. host .. ":count", count)
+		for i=1,count do
+			ngx.log(ngx.INFO, "updating: " .. host .. ", index: " .. i .. ", member: " .. members[i])
+			dict:set("s:" .. host .. ":" .. i, members[i])
+			dict:set("s:" .. host .. ":" .. members[i], i)
+		end
+	end
 end
 
 return _M

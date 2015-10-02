@@ -1,5 +1,8 @@
 -- GET /v1/rem?ip=10.0.0.1
 
+-- load shared dict
+local dict = ngx.shared.upstream
+
 -- load redis settings
 local redis_host = ngx.var.redis_host
 local redis_port = ngx.var.redis_port
@@ -36,10 +39,20 @@ if not ok then
 end
 
 -- do work
-local ok, err = red:srem("s:" .. host , ip)
-if not ok then
-    ngx.log(ngx.ERR, "unable to remove upstream: ", err)
+
+local index = dict:get("s:" .. host .. ":" .. ip)
+if index == nil then
+	ngx.log(ngx.INFO, "key not found, ignoring: " .. host .. ", ip: " .. ip)
+	return
 end
+
+dict:delete("s:" .. host .. ":" .. index)
+dict:delete("s:" .. host .. ":" .. ip)
+red:srem("s:" .. host , ip)
+
+local lb = require "lb"
+lb.updateUpstreamTable(host, dict , red)
+lb.updateNextUpstream(host, dict, red)
 
 -- put connection back to pool
 local ok, err = red:set_keepalive(redis_idle,redis_pool_size)
