@@ -35,7 +35,7 @@ end
 local members, err = red:smembers("s:" .. host)
 for key,value in pairs(members) do
 	ngx.say("redis: " .. key .. "=" .. value)
-	ngx.say("shared_dict: " .. key .. "=" .. dict:get("s:" .. host .. key ))
+	ngx.say("shared_dict: " .. key .. "=" .. dict:get("s:" .. host .. ":" .. key ))
 end
 ngx.say("count: " .. dict:get("s:" .. host .. ":count" ))
 

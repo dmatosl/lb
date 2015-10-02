@@ -48,8 +48,9 @@ end
 -- update members cardinality in shared dict
 local count, err = red:scard("s:" .. host)
 if count > 0 then
-	local ok, err, forcible = dict:set("s:" .. host .. ":count", count)
-	local ok, err, forcible = dict:set("s:" .. host .. tostring(count), ip)
+	local ok, err = dict:set("s:" .. host .. ":count", count)
+	local ok, err = dict:add("s:" .. host .. ":" .. count, ip)
+    local ok, err = dict:add("s:" .. host .. ":" .. ip, count)
 end
 
 -- put connection back to pool

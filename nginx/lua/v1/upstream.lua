@@ -31,29 +31,9 @@ if not ok then
 end
 
 -- do work
-local count_upstream, err = dict:get("s:" .. host .. ":count")
-
-if count_upstream == nil then
-	ngx.log(ngx.ERR, "count key not found on shared dict upstream: " .. host)
-	ngx.exit(500)
-end
-
-local next_upstream, err = dict:incr("s:" .. host .. ":next_upstream", 1)
-
-if not next_upstream and err == "not found" then
-	dict:add("s:" .. host .. ":next_upstream", 0)
-	next_upstream = dict:incr("s:" .. host .. ":next_upstream", 1)
-end
-
-if next_upstream > count_upstream then
-	dict:set("s:" .. host .. ":next_upstream", 1)
-	next_upstream = 1
-end
-
-local up, err = dict:get("s:" .. host .. next_upstream)
-if err == "not found" then
-	ngx.log(ngx.ERR, "upstream not found for " .. host)
-end
+local lb = require "lb"
+local up = lb.getNextUpstream(host, dict, red)
+lb.updateNextUpstream(host, dict, red)
 
 -- put connection back to pool
 local ok, err = red:set_keepalive(redis_idle,redis_pool_size)
