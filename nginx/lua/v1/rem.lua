@@ -13,6 +13,7 @@ local redis_timeout = ngx.var.redis_timeout
 -- simple http_host validation
 local host = ngx.var.host
 local ip = ngx.var.arg_ip
+local port = ngx.var.arg_port
 
 -- check host header
 if not host then
@@ -23,6 +24,12 @@ end
 -- check ip param
 if not ip then
     ngx.log(ngx.ERR, "IP not provided")
+    nginx.exit(500)
+end
+
+-- check port param
+if not port then
+    ngx.log(ngx.ERR, "Port not provided")
     nginx.exit(500)
 end
 
@@ -40,15 +47,15 @@ end
 
 -- do work
 
-local index = dict:get("s:" .. host .. ":" .. ip)
+local index = dict:get("s:" .. host .. ":" .. ip .. ":" .. port)
 if index == nil then
-	ngx.log(ngx.INFO, "key not found, ignoring: " .. host .. ", ip: " .. ip)
+	ngx.log(ngx.INFO, "key not found, ignoring: " .. host .. ", ip: " .. ip .. ":" .. port)
 	return
 end
 
 dict:delete("s:" .. host .. ":" .. index)
-dict:delete("s:" .. host .. ":" .. ip)
-red:srem("s:" .. host , ip)
+dict:delete("s:" .. host .. ":" .. ip .. ":" .. port)
+red:srem("s:" .. host , ip .. ":" .. port)
 
 local lb = require "lb"
 lb.updateUpstreamTable(host, dict , red)

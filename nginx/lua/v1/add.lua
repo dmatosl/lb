@@ -13,6 +13,7 @@ local redis_timeout = ngx.var.redis_timeout
 -- simple http_host validation
 local host = ngx.var.host
 local ip = ngx.var.arg_ip
+local port = ngx.var.arg_port
 
 -- check host header
 if not host then
@@ -23,6 +24,12 @@ end
 -- check ip param
 if not ip then
     ngx.log(ngx.ERR, "IP not provided")
+    nginx.exit(500)
+end
+
+-- check port param
+if not port then
+    ngx.log(ngx.ERR, "Port not provided")
     nginx.exit(500)
 end
 
@@ -39,7 +46,7 @@ if not ok then
 end
 
 -- do work
-local ok, err = red:sadd("s:" .. host , ip)
+local ok, err = red:sadd("s:" .. host , ip .. ":" .. port)
 if not ok then
     ngx.log(ngx.ERR, "unable to set upstream: ", err)
     ngx.exit(500)
@@ -49,8 +56,8 @@ end
 local count, err = red:scard("s:" .. host)
 if count > 0 then
 	local ok, err = dict:set("s:" .. host .. ":count", count)
-	local ok, err = dict:set("s:" .. host .. ":" .. count, ip)
-    local ok, err = dict:set("s:" .. host .. ":" .. ip, count)
+	local ok, err = dict:set("s:" .. host .. ":" .. count, ip .. ":" .. port)
+    local ok, err = dict:set("s:" .. host .. ":" .. ip .. ":" .. port, count)
 end
 
 -- put connection back to pool
