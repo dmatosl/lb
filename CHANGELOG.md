@@ -1,7 +1,8 @@
 CHANGELOG
 
 ## 0.0.4 (2015-10-15)
-
+Bugfix:
+  - disabled proxy_redirect directive
 
 ## 0.0.3 (2015-10-15)
 
